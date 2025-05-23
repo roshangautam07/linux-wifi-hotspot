@@ -51,7 +51,7 @@ def get_interfaces():
 
     return jsonify({
         "wifi_interfaces": wifi_interfaces,
-        "other_interfaces": other_interfaces
+        "other_interfaces": [other_interfaces,wifi_interfaces]
     })
 
 @app.route('/hotspot/start', methods=['POST'])
@@ -94,6 +94,7 @@ def start_hotspot():
     try:
         # Run create_ap in the background
         # Using Popen to run in background and store PID
+        print(cmd)
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         running_hotspots_pids[wifi_interface] = process.pid
         return jsonify({"status": "success", "message": f"Hotspot '{ssid}' initiated on {wifi_interface}.", "pid": process.pid, "command": " ".join(cmd)})
@@ -147,32 +148,70 @@ def stop_hotspot():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
-@app.route('/hotspot/status', methods=['GET'])
-def hotspot_status():
-    try:
+def getHotSpotPID():
         cmd = ['sudo', 'create_ap', '--list-running']
-        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        # cmd = ['sudo', 'create_ap', '--list-clients','68284']
 
+        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        # print(result)
         if result.returncode != 0 and "No running APs" not in result.stdout : # Handles case where no APs are running
              # If create_ap returns an error but it's not "No running APs", then it's a real error
             if "No running APs" not in result.stderr and "No running APs" not in result.stdout : # create_ap might output "No running APs" to stdout or stderr
                 return jsonify({"status": "error", "message": "Failed to get hotspot status", "details": result.stderr or result.stdout}), 500
         
         output = result.stdout.strip()
+        # print(output.splitlines())
         running_hotspots = []
         if output and "No running APs" not in output:
             lines = output.splitlines()
+            print(lines[0].split()[0])
+            print(len(lines[0].split()))
             # Example output:
             # PID    Ifaces    SSID
             # 12345  wlan0     MyAP
             # We assume the first line is a header
-            for line in lines[1:]: # Skip header
-                parts = line.split()
-                if len(parts) >= 3:
-                    pid = parts[0]
-                    iface = parts[1] # This might list multiple ifaces if create_ap bridges them
+            # for line in lines[0].split(): # Skip header
+                # print(line)
+                # parts = line
+                # if len(parts) >= 3:
+            pid = lines[0].split()[0]
+            iface = lines[0].split()[1] # This might list multiple ifaces if create_ap bridges them
                     # ssid = " ".join(parts[2:]) # SSID can have spaces, though create_ap output might simplify
-                    running_hotspots.append({"pid": pid, "interface": iface}) # SSID might be tricky to parse reliably here
+            running_hotspots.append({"pid": pid, "interface": iface}) # SSID might be tricky to parse reliably here
+            return running_hotspots
+
+@app.route('/hotspot/status', methods=['GET'])
+def hotspot_status():
+    try:
+        cmd = ['sudo', 'create_ap', '--list-running']
+        # cmd = ['sudo', 'create_ap', '--list-clients','68284']
+
+        result = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        # print(result)
+        if result.returncode != 0 and "No running APs" not in result.stdout : # Handles case where no APs are running
+             # If create_ap returns an error but it's not "No running APs", then it's a real error
+            if "No running APs" not in result.stderr and "No running APs" not in result.stdout : # create_ap might output "No running APs" to stdout or stderr
+                return jsonify({"status": "error", "message": "Failed to get hotspot status", "details": result.stderr or result.stdout}), 500
+        
+        output = result.stdout.strip()
+        # print(output.splitlines())
+        running_hotspots = []
+        if output and "No running APs" not in output:
+            lines = output.splitlines()
+            # print(lines[0].split()[0])
+            # print(len(lines[0].split()))
+            # Example output:
+            # PID    Ifaces    SSID
+            # 12345  wlan0     MyAP
+            # We assume the first line is a header
+            # for line in lines[0].split(): # Skip header
+                # print(line)
+                # parts = line
+                # if len(parts) >= 3:
+            pid = lines[0].split()[0]
+            iface = lines[0].split()[1] # This might list multiple ifaces if create_ap bridges them
+                    # ssid = " ".join(parts[2:]) # SSID can have spaces, though create_ap output might simplify
+            running_hotspots.append({"pid": pid, "interface": iface}) # SSID might be tricky to parse reliably here
         
         # Augment with our internally tracked PIDs for consistency, though create_ap --list-running is the source of truth
         # This also helps to show hotspots that might have been started by this app but create_ap --list-running failed for some reason
@@ -194,9 +233,10 @@ def hotspot_clients():
     wifi_interface = request.args.get('wifi_interface')
     if not wifi_interface:
         return jsonify({"status": "error", "message": "Missing wifi_interface query parameter"}), 400
-
+    pid = getHotSpotPID();
+    # print('HELLO',len(pid[0]))
     try:
-        cmd = ['sudo', 'create_ap', '--list-clients', wifi_interface]
+        cmd = ['sudo', 'create_ap', '--list-clients',pid[0]['pid']]
         result = subprocess.run(cmd, capture_output=True, text=True, check=False)
 
         if result.returncode != 0:
