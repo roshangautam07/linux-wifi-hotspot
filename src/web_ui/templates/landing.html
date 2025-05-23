@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-T">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotspot Session Status</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='portal_style.css') }}">
+</head>
+<body>
+    <div class="login-container"> <!-- Re-using login-container for similar styling -->
+        <div class="login-box"> <!-- Re-using login-box for similar styling -->
+            <h1 id="welcome-message">Welcome!</h1>
+            
+            <div class="session-details">
+                <p><strong>Username:</strong> <span id="user-username">Loading...</span></p>
+                <p><strong>Current Plan:</strong> <span id="user-plan">Loading...</span></p>
+                <p><strong>Session Expires:</strong> <span id="user-expiry">Loading...</span></p>
+                <p><strong>Device MAC:</strong> <span id="user-mac">Loading...</span></p>
+            </div>
+            
+            <button id="logout-button" class="button-logout">Logout</button>
+            
+            <div id="message-area" class="message" style="display:none;"></div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='landing_script.js') }}"></script>
+</body>
+</html>

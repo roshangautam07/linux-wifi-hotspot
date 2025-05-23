@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internet Access Portal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='portal_style.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <h1>Hotspot Login</h1>
+            <p>Please enter your credentials to access the internet.</p>
+            
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                
+                <button type="submit" id="login-button">Login</button>
+            </form>
+            
+            <div id="message-area" class="message" style="display:none;"></div>
+            
+            <div class="footer-links">
+                <!-- Optional: Link to a registration page or terms of service -->
+                <!-- <p>New user? <a href="/portal/register">Register here</a></p> -->
+                <!-- <p><a href="/portal/terms">Terms of Service</a></p> -->
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='login_script.js') }}"></script>
+</body>
+</html>

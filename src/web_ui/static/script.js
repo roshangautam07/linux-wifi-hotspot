@@ -3,7 +3,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const wifiInterfaceSelect = document.getElementById('wifi-interface');
     const internetInterfaceSelect = document.getElementById('internet-interface');
     const ssidInput = document.getElementById('ssid');
-    const activePid = document.getElementById('active-pid');
     const passwordInput = document.getElementById('password');
     const openHotspotCheckbox = document.getElementById('open-hotspot');
     const createHotspotBtn = document.getElementById('create-hotspot-btn');
@@ -24,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ... (add other advanced settings elements here as they are implemented)
 
     let currentHotspotInterface = null; // Stores the interface of the currently active hotspot
-    let activeProcessId = null;
+
     // --- Utility Functions ---
     function showStatus(message) {
         statusArea.textContent = message;
@@ -90,16 +89,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (data.running_hotspots && data.running_hotspots.length > 0) {
                 const hotspot = data.running_hotspots[0]; // Assuming one hotspot for now
-                console.log(hotspot)
                 currentHotspotInterface = hotspot.interface; // Store the active interface
-                activeProcessId = hotspot.pid;
                 
                 // Try to get SSID and password from form or previous state if available
                 // This part is tricky as `create_ap --list-running` does not reliably give SSID
                 // We'll update with the form's SSID if we started it from here.
                 activeSsidSpan.textContent = ssidInput.value || 'Unknown (check form)'; 
                 activeInterfaceSpan.textContent = currentHotspotInterface;
-                activePid.textContent = activeProcessId
                 activeHotspotSection.style.display = 'block';
                 stopHotspotBtn.style.display = 'inline-block';
                 createHotspotBtn.disabled = true;
