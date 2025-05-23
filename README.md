@@ -29,6 +29,55 @@
 
 ![screenshot](docs/sc4.png)
 
+## Web UI (Experimental)
+
+A new experimental web-based user interface is available for managing the hotspot. This interface provides a modern way to control hotspot functionalities through a web browser.
+
+### Web UI Features
+*   Start and stop the Wi-Fi hotspot.
+*   Configure SSID, password, Wi-Fi interface, and internet sharing interface.
+*   Support for advanced options like frequency band (2.4GHz, 5GHz), hidden SSID, and using the physical interface directly (no-virt).
+*   Set a custom channel for the hotspot.
+*   Enable open (no password) hotspot.
+*   View connected client devices (MAC address, IP address, hostname).
+*   Generate a QR code for easy Wi-Fi connection.
+*   Responsive design for use on different screen sizes.
+
+### Web UI Installation
+
+The Web UI requires Python 3 and several Python packages. The core dependencies of `linux-wifi-hotspot` (like `hostapd`, `dnsmasq`, and `create_ap` itself) must still be installed as per the general [Dependencies](#dependencies) and [Installation](#installation) sections.
+
+1.  **Install Python Dependencies:**
+    The Python dependencies are listed in `src/web_ui/requirements.txt`. Install them using pip:
+    ```bash
+    sudo pip install -r src/web_ui/requirements.txt
+    ```
+    *Note: It's generally recommended to use a virtual environment for Python projects, but for system-wide tools like this, direct installation with `sudo pip` might be necessary if the application itself will be run with `sudo`.*
+
+2.  **Ensure `create_ap` is Installed:**
+    Follow the main installation instructions to ensure `create_ap` is installed and available in your system's PATH.
+
+### Running the Web UI
+
+1.  **Start the Flask Application:**
+    The web application needs to be run with root privileges because `create_ap` (which it calls) requires root access to manage network interfaces and services.
+    Navigate to the repository's root directory and run:
+    ```bash
+    sudo python3 src/web_ui/app.py
+    ```
+
+2.  **Access the Web UI:**
+    Once the server is running, open your web browser and go to:
+    `http://localhost:5000`
+    (Or `http://<your-server-ip>:5000` if accessing from another device on the network).
+
+3.  **Important Note on Permissions (Recommended for Advanced Users):**
+    Running the entire Flask web server as root is generally not recommended for security reasons. A more secure approach is to allow the user running the Flask application (e.g., your regular user) to execute only the `create_ap` command with `sudo` without a password.
+    To do this, you would add a line to your `sudoers` file using `sudo visudo`. For example, if your username is `youruser`:
+    ```
+    youruser ALL=(ALL) NOPASSWD: /usr/bin/create_ap
+    ```
+    After this configuration, you could potentially run the Flask app as `youruser` (without `sudo python3 ...`), provided `youruser` has the necessary permissions to bind to port 5000 (ports below 1024 typically require root, but 5000 is usually fine). The Python script itself makes calls like `sudo create_ap ...`, so this `sudoers` rule would allow those calls to proceed without a password prompt.
 
 ### Command line help and documentation
 

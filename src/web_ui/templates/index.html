@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wi-Fi Hotspot Manager</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Wi-Fi Hotspot Manager</h1>
+
+        <div id="status-area" class="status-message" style="display:none;"></div>
+        <div id="error-area" class="error-message" style="display:none;"></div>
+
+        <div class="section">
+            <h2>Hotspot Configuration</h2>
+            <form id="hotspot-form">
+                <div>
+                    <label for="wifi-interface">Wi-Fi Interface:</label>
+                    <select id="wifi-interface" name="wifi_interface" required></select>
+                </div>
+                <div>
+                    <label for="internet-interface">Internet Interface (Optional):</label>
+                    <select id="internet-interface" name="internet_interface">
+                        <option value="">None (No Internet Sharing)</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="ssid">Hotspot Name (SSID):</label>
+                    <input type="text" id="ssid" name="ssid" required>
+                </div>
+                <div>
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" minlength="8" required>
+                </div>
+                <div>
+                    <input type="checkbox" id="open-hotspot" name="open_hotspot">
+                    <label for="open-hotspot">Open Hotspot (No Password)</label>
+                </div>
+
+                <details>
+                    <summary>Advanced Settings</summary>
+                    <div class="advanced-options">
+                        <div>
+                            <label>Frequency Band:</label>
+                            <input type="radio" id="freq-band-2.4" name="freq_band" value="2.4" checked> <label for="freq-band-2.4">2.4 GHz</label>
+                            <input type="radio" id="freq-band-5" name="freq_band" value="5"> <label for="freq-band-5">5 GHz</label>
+                        </div>
+                        <div>
+                            <input type="checkbox" id="hidden" name="hidden">
+                            <label for="hidden">Hidden Hotspot</label>
+                        </div>
+                        <div>
+                            <input type="checkbox" id="no-virt" name="no_virt">
+                            <label for="no-virt">Use Physical Interface (no-virt)</label>
+                        </div>
+                         <div>
+                            <input type="checkbox" id="enable-channel" name="enable_channel">
+                            <label for="enable-channel">Set Channel:</label>
+                            <input type="number" id="channel" name="channel" min="1" max="165" disabled>
+                        </div>
+                        <!-- More advanced options can be added here based on wifih.ui, if needed -->
+                        <!-- For simplicity, not all wifih.ui options are included. Focus on create_ap relevant ones. -->
+                        <!-- 
+                        <p><i>Note: Some advanced options from wifih.ui like PSK, MAC settings, Gateway, MAC Filter, IEEE modes, No Haveged are not directly mapped to `create_ap` basic flags in this simplified example but can be added if `create_ap` supports them directly or via underlying tools.</i></p>
+                        -->
+                    </div>
+                </details>
+
+                <div class="buttons">
+                    <button type="button" id="create-hotspot-btn">Create Hotspot</button>
+                    <button type="button" id="stop-hotspot-btn" style="display:none;">Stop Hotspot</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="section" id="active-hotspot-section" style="display:none;">
+            <h2>Active Hotspot</h2>
+            <p>SSID: <span id="active-ssid">N/A</span></p>
+            <p>Interface: <span id="active-interface">N/A</span></p>
+            <div id="qrcode-section">
+                <h3>Scan to Connect</h3>
+                <img id="qrcode-img" src="" alt="Wi-Fi QR Code">
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Connected Devices</h2>
+            <table id="clients-table">
+                <thead>
+                    <tr>
+                        <th>MAC Address</th>
+                        <th>IP Address</th>
+                        <th>Hostname</th>
+                    </tr>
+                </thead>
+                <tbody id="clients-tbody">
+                    <tr><td colspan="3">No clients connected or hotspot inactive.</td></tr>
+                </tbody>
+            </table>
+            <button type="button" id="refresh-clients-btn" disabled>Refresh Clients</button>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
