@@ -51,7 +51,7 @@ def get_interfaces():
 
     return jsonify({
         "wifi_interfaces": wifi_interfaces,
-        "other_interfaces": [other_interfaces,wifi_interfaces]
+        "other_interfaces": other_interfaces+wifi_interfaces
     })
 
 @app.route('/hotspot/start', methods=['POST'])
